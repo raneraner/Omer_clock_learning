@@ -16,7 +16,6 @@
             display: flex; flex-direction: column; align-items: center; justify-content: space-evenly;
             box-sizing: border-box;
         }
-        #app-screen { display: none; }
         h1 { color: #2a75bb; font-size: 1.8rem; margin: 0; text-shadow: 1px 1px #ffcb05; }
         .stage-instructions { font-size: 1rem; color: #444; margin: 0; font-weight: bold; }
         .pokemon-img { width: 180px; height: 180px; object-fit: contain; }
@@ -29,9 +28,9 @@
         button:active { transform: scale(0.95); }
         .btn-blue { background-color: #2a75bb; }
         .btn-green { background-color: #4caf50; }
-        .btn-close { background-color: #333; position: absolute; top: 15px; right: 15px; border-radius: 50%; width: 40px; height: 40px; font-size: 1.2rem; display: flex; justify-content: center; align-items: center; z-index: 10; }
+        .btn-close { background-color: #333; position: absolute; top: 15px; right: 15px; border-radius: 50%; width: 40px; height: 40px; font-size: 1.2rem; display: flex; justify-content: center; align-items: center; z-index: 10; color: white; }
         
-        /* שעון - הוקטן למובייל */
+        /* שעון */
         .clock-container {
             position: relative; width: 220px; height: 220px; border: 10px solid #333;
             border-radius: 50%; background: #fdfbfb; box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
@@ -56,7 +55,7 @@
         .nav-btn { width: 45px; height: 45px; border-radius: 50%; font-size: 1.2rem; padding: 0; display: flex; align-items: center; justify-content: center; }
         .pokeball-btn { width: 60px; height: 60px; background: url('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png') no-repeat center center; background-size: cover; background-color: white; border: 3px solid #333; border-radius: 50%; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
         
-        /* מודאלים (מסכים קופצים) */
+        /* מודאלים */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; text-align: center; }
         .modal-content { background: white; padding: 20px; border-radius: 20px; width: 90%; max-width: 350px; position: relative; max-height: 90vh; display: flex; flex-direction: column; align-items: center; }
         .modal-title { color: #e67e22; font-size: 2.2rem; margin-bottom: 10px; }
@@ -75,7 +74,7 @@
         <button class="btn-green" onclick="startApp()">בוא נתחיל לשחק!</button>
     </div>
 
-    <div id="app-screen">
+    <div id="app-screen" class="hidden">
         <h1 id="stage-title">שלב 1</h1>
         <p id="stage-desc" class="stage-instructions"></p>
         
@@ -228,7 +227,6 @@
             };
             const minIndicators = document.querySelectorAll('.min-indicator');
 
-            // איפוס תצוגה
             Object.values(elements).forEach(el => el.classList.add('hidden'));
             minIndicators.forEach(el => el.classList.add('hidden'));
 
@@ -286,14 +284,12 @@
                 collectedPokemon.push(newPoke);
                 localStorage.setItem('omerPokedex', JSON.stringify(collectedPokemon));
                 
-                // הצגת מסך הניצחון
                 document.getElementById('victory-pokemon').src = newPoke;
                 document.getElementById('victory-modal').classList.remove('hidden');
                 
             } else {
-                // ניתן לשפר עם מסך טעות עדין, בינתיים הושאר להנחיה ויזואלית קצרה
                 const btn = document.getElementById('check-btn');
-                btn.innerText = 'נסה שוב!';
+                btn.innerText = '״נסה שוב!״';
                 btn.style.backgroundColor = '#e74c3c';
                 setTimeout(() => {
                     btn.innerText = 'בדוק תשובה';
