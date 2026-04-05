@@ -2,78 +2,67 @@
 <html dir="rtl" lang="he">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>עומר לומד לקרוא שעון</title>
     <style>
         body {
-            font-family: system-ui, sans-serif;
-            background-color: #e0f7fa;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            font-family: system-ui, sans-serif; background-color: #e0f7fa;
+            margin: 0; padding: 0; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; height: 100vh; overflow: hidden;
         }
         #splash-screen, #app-screen {
-            text-align: center;
-            background: #ffffff;
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-            max-width: 500px;
-            width: 100%;
+            text-align: center; background: #ffffff; padding: 15px; border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 90%; max-width: 400px; height: 90vh;
+            display: flex; flex-direction: column; align-items: center; justify-content: space-evenly;
+            box-sizing: border-box;
         }
-        h1 { color: #2a75bb; font-size: 2.2rem; margin-bottom: 10px; text-shadow: 1px 1px #ffcb05; }
-        .stage-instructions { font-size: 1.2rem; color: #444; margin-bottom: 20px; font-weight: bold; }
-        .pokemon-img { width: 220px; height: 220px; }
+        #app-screen { display: none; }
+        h1 { color: #2a75bb; font-size: 1.8rem; margin: 0; text-shadow: 1px 1px #ffcb05; }
+        .stage-instructions { font-size: 1rem; color: #444; margin: 0; font-weight: bold; }
+        .pokemon-img { width: 180px; height: 180px; object-fit: contain; }
+        
         button {
-            background-color: #ff5252; color: white; border: none;
-            padding: 15px 30px; font-size: 1.2rem; border-radius: 12px;
-            cursor: pointer; margin-top: 25px; font-weight: bold;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.1s;
+            background-color: #ff5252; color: white; border: none; padding: 12px 20px;
+            font-size: 1.1rem; border-radius: 10px; cursor: pointer; font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         button:active { transform: scale(0.95); }
         .btn-blue { background-color: #2a75bb; }
         .btn-green { background-color: #4caf50; }
+        .btn-close { background-color: #333; position: absolute; top: 15px; right: 15px; border-radius: 50%; width: 40px; height: 40px; font-size: 1.2rem; display: flex; justify-content: center; align-items: center; z-index: 10; }
         
-        /* שעון */
+        /* שעון - הוקטן למובייל */
         .clock-container {
-            position: relative; width: 300px; height: 300px;
-            border: 12px solid #333; border-radius: 50%;
-            margin: 30px auto; background: #fdfbfb;
-            box-shadow: inset 0 0 15px rgba(0,0,0,0.1);
+            position: relative; width: 220px; height: 220px; border: 10px solid #333;
+            border-radius: 50%; background: #fdfbfb; box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+            flex-shrink: 0;
         }
-        .hand {
-            position: absolute; bottom: 50%; left: 50%;
-            transform-origin: bottom; border-radius: 8px; transition: transform 0.1s;
-        }
-        .hour-hand { width: 8px; height: 75px; margin-left: -4px; background: #e74c3c; z-index: 2; }
-        .minute-hand { width: 6px; height: 110px; margin-left: -3px; background: #3498db; z-index: 1; }
-        .center-dot {
-            position: absolute; top: 50%; left: 50%;
-            width: 20px; height: 20px; background: #f1c40f; border: 4px solid #333;
-            border-radius: 50%; transform: translate(-50%, -50%); z-index: 3;
-        }
-        .number-label { position: absolute; font-weight: bold; font-size: 1.4rem; color: #333; }
-        .minute-label { position: absolute; font-weight: bold; font-size: 1rem; color: #e74c3c; background: #ffeaa7; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; }
+        .hand { position: absolute; bottom: 50%; left: 50%; transform-origin: bottom; border-radius: 8px; }
+        .hour-hand { width: 6px; height: 55px; margin-left: -3px; background: #e74c3c; z-index: 2; }
+        .minute-hand { width: 4px; height: 85px; margin-left: -2px; background: #3498db; z-index: 1; }
+        .center-dot { position: absolute; top: 50%; left: 50%; width: 16px; height: 16px; background: #f1c40f; border: 3px solid #333; border-radius: 50%; transform: translate(-50%, -50%); z-index: 3; }
+        .number-label { position: absolute; font-weight: bold; font-size: 1.1rem; color: #333; }
+        .minute-label { position: absolute; font-weight: bold; font-size: 0.8rem; color: #e74c3c; background: #ffeaa7; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; }
         
         /* סליידרים */
-        .controls { display: flex; flex-direction: column; align-items: center; gap: 25px; margin-top: 30px; }
-        .control-group { background: #f1f8e9; padding: 15px; border-radius: 12px; width: 90%; }
-        .control-group label { font-size: 1.2rem; font-weight: bold; color: #2c3e50; }
-        input[type="range"] { 
-            width: 100%; height: 25px; margin-top: 10px; cursor: pointer;
-            accent-color: #2a75bb; 
-        }
+        .controls { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; }
+        .control-group { background: #f1f8e9; padding: 10px; border-radius: 10px; width: 90%; }
+        .control-group label { font-size: 1.1rem; font-weight: bold; color: #2c3e50; }
+        input[type="range"] { width: 100%; height: 25px; cursor: pointer; accent-color: #2a75bb; }
         
-        .pokedex { margin-top: 40px; border-top: 4px dashed #bdc3c7; padding-top: 20px; background: #fff9c4; border-radius: 15px; padding-bottom: 20px; }
-        .pokedex h3 { color: #d35400; }
-        .pokedex-grid { display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; padding: 0 15px; }
-        .pokedex-item { width: 75px; height: 75px; background: white; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        /* כפתורי ניווט ואייקון פוקדור */
+        .bottom-bar { position: fixed; bottom: 15px; left: 15px; right: 15px; display: flex; justify-content: space-between; align-items: flex-end; z-index: 50; }
+        .nav-buttons { display: flex; gap: 10px; }
+        .nav-btn { width: 45px; height: 45px; border-radius: 50%; font-size: 1.2rem; padding: 0; display: flex; align-items: center; justify-content: center; }
+        .pokeball-btn { width: 60px; height: 60px; background: url('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png') no-repeat center center; background-size: cover; background-color: white; border: 3px solid #333; border-radius: 50%; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
         
-        /* כפתורי ניווט */
-        .nav-buttons { position: fixed; bottom: 20px; right: 20px; display: flex; gap: 15px; flex-direction: row-reverse; z-index: 100; }
-        .nav-btn { width: 55px; height: 55px; border-radius: 50%; font-size: 1.5rem; padding: 0; display: flex; align-items: center; justify-content: center; margin-top: 0; }
+        /* מודאלים (מסכים קופצים) */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; text-align: center; }
+        .modal-content { background: white; padding: 20px; border-radius: 20px; width: 90%; max-width: 350px; position: relative; max-height: 90vh; display: flex; flex-direction: column; align-items: center; }
+        .modal-title { color: #e67e22; font-size: 2.2rem; margin-bottom: 10px; }
+        .pokedex-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; overflow-y: auto; max-height: 60vh; padding: 10px 0; width: 100%; }
+        .pokedex-item { width: 70px; height: 70px; background: #f0f0f0; border-radius: 50%; border: 2px solid #ccc; cursor: pointer; }
+        .huge-pokemon { width: 250px; height: 250px; object-fit: contain; }
         
         .hidden { display: none !important; }
     </style>
@@ -81,17 +70,16 @@
 <body>
 
     <div id="splash-screen">
-        <h1>עומר לומד לקרוא שעון</h1>
+        <h1>עומר לומד<br>לקרוא שעון</h1>
         <img id="splash-pokemon" class="pokemon-img" src="" alt="פוקימון">
-        <br>
         <button class="btn-green" onclick="startApp()">בוא נתחיל לשחק!</button>
     </div>
 
-    <div id="app-screen" class="hidden">
+    <div id="app-screen">
         <h1 id="stage-title">שלב 1</h1>
         <p id="stage-desc" class="stage-instructions"></p>
         
-        <h2 id="task-text" class="hidden" style="color: #e67e22;">כוון את השעון לשעה:<br><span id="target-time" style="font-size: 2.5rem;"></span></h2>
+        <h2 id="task-text" class="hidden" style="color: #e67e22; margin: 0; font-size: 1.4rem;">כוון לשעה: <span id="target-time" style="font-size: 2rem;"></span></h2>
         
         <div class="clock-container" id="clock">
             <div class="hand hour-hand" id="hour-hand" style="transform: rotate(0deg)"></div>
@@ -101,28 +89,48 @@
 
         <div class="controls">
             <div id="hour-control" class="control-group hidden">
-                <label>שעות:</label><br>
+                <label>שעות:</label>
                 <input type="range" id="hour-slider" min="1" max="12" value="12" oninput="updateClock()">
             </div>
             <div id="minute-control" class="control-group hidden">
-                <label>דקות:</label><br>
+                <label>דקות:</label>
                 <input type="range" id="minute-slider" min="0" max="55" step="5" value="0" oninput="updateClock()">
             </div>
         </div>
 
         <button id="check-btn" class="hidden btn-green" onclick="checkAnswer()">בדוק תשובה</button>
-        <br>
-        <button id="next-stage-btn" class="hidden btn-blue" onclick="nextStage()">הבנתי, עבור לשלב הבא</button>
+        <button id="next-stage-btn" class="hidden btn-blue" onclick="nextStage()">הבנתי, לשלב הבא</button>
+    </div>
 
-        <div class="pokedex hidden" id="pokedex-section">
-            <h3>הפוקידע שלי</h3>
+    <div id="bottom-bar" class="bottom-bar hidden">
+        <div class="nav-buttons">
+            <button class="nav-btn btn-blue" onclick="resetToHome()">🏠</button>
+            <button class="nav-btn" style="background:#f39c12; color:white;" onclick="resetCurrentStage()">↺</button>
+        </div>
+        <div id="pokeball-icon" class="pokeball-btn hidden" onclick="openPokedex()"></div>
+    </div>
+
+    <div id="victory-modal" class="modal hidden">
+        <div class="modal-content">
+            <button class="btn-close" onclick="closeVictory()">X</button>
+            <h2 class="modal-title">יופי! צדקת!</h2>
+            <img id="victory-pokemon" class="huge-pokemon" src="">
+        </div>
+    </div>
+
+    <div id="pokedex-modal" class="modal hidden">
+        <div class="modal-content" style="background: #fff9c4;">
+            <button class="btn-close" onclick="closePokedex()">X</button>
+            <h2 style="color: #d35400; margin: 0 0 10px 0;">הפוקידע של עומר</h2>
             <div id="pokedex-grid" class="pokedex-grid"></div>
         </div>
     </div>
 
-    <div id="nav-area" class="nav-buttons hidden">
-        <button class="nav-btn btn-blue" onclick="resetToHome()" title="חזור להתחלה">🏠</button>
-        <button class="nav-btn" onclick="resetCurrentStage()" title="אתחל שלב נוכחי">↺</button>
+    <div id="enlarge-modal" class="modal hidden">
+        <div class="modal-content">
+            <button class="btn-close" onclick="closeEnlarge()">X</button>
+            <img id="enlarge-pokemon" class="huge-pokemon" src="">
+        </div>
     </div>
 
     <script>
@@ -134,19 +142,18 @@
         window.onload = () => {
             document.getElementById('splash-pokemon').src = getRandomPokemonUrl();
             drawClockNumbers();
-            renderPokedex();
         };
 
         function startApp() {
             document.getElementById('splash-screen').classList.add('hidden');
             document.getElementById('app-screen').classList.remove('hidden');
-            document.getElementById('nav-area').classList.remove('hidden');
+            document.getElementById('bottom-bar').classList.remove('hidden');
             setStage(1);
         }
 
         function resetToHome() {
             document.getElementById('app-screen').classList.add('hidden');
-            document.getElementById('nav-area').classList.add('hidden');
+            document.getElementById('bottom-bar').classList.add('hidden');
             document.getElementById('splash-screen').classList.remove('hidden');
             document.getElementById('splash-pokemon').src = getRandomPokemonUrl();
         }
@@ -159,13 +166,13 @@
 
         function drawClockNumbers() {
             const clock = document.getElementById('clock');
+            const radiusHour = 75; 
+            const radiusMin = 100;
             
             for (let i = 1; i <= 12; i++) {
                 const angle = (i * 30) * (Math.PI / 180);
-                const radius = 105;
-                const x = 150 + radius * Math.sin(angle) - 8; 
-                const y = 150 - radius * Math.cos(angle) - 15;
-                
+                const x = 110 + radiusHour * Math.sin(angle) - 8; 
+                const y = 110 - radiusHour * Math.cos(angle) - 12;
                 const num = document.createElement('div');
                 num.className = 'number-label';
                 num.style.left = x + 'px';
@@ -176,10 +183,8 @@
 
             for (let i = 0; i < 60; i += 5) {
                 const angle = (i * 6) * (Math.PI / 180);
-                const radius = 135; 
-                const x = 150 + radius * Math.sin(angle) - 12; 
-                const y = 150 - radius * Math.cos(angle) - 12;
-                
+                const x = 110 + radiusMin * Math.sin(angle) - 10; 
+                const y = 110 - radiusMin * Math.cos(angle) - 10;
                 const minLbl = document.createElement('div');
                 minLbl.className = 'minute-label min-indicator hidden';
                 minLbl.style.left = x + 'px';
@@ -192,18 +197,16 @@
         function updateClock() {
             const hour = parseInt(document.getElementById('hour-slider').value);
             const minute = parseInt(document.getElementById('minute-slider').value);
-            
             const minuteAngle = minute * 6;
-            document.getElementById('minute-hand').style.transform = `rotate(${minuteAngle}deg)`;
-            
             const hourAngle = (hour % 12) * 30 + (minute * 0.5);
+            
+            document.getElementById('minute-hand').style.transform = `rotate(${minuteAngle}deg)`;
             document.getElementById('hour-hand').style.transform = `rotate(${hourAngle}deg)`;
         }
 
         function nextStage() {
             if (currentStage < 4) {
-                currentStage++;
-                setStage(currentStage);
+                setStage(currentStage + 1);
             }
         }
 
@@ -213,47 +216,49 @@
 
             const title = document.getElementById('stage-title');
             const desc = document.getElementById('stage-desc');
-            const hHand = document.getElementById('hour-hand');
-            const mHand = document.getElementById('minute-hand');
-            const hCtrl = document.getElementById('hour-control');
-            const mCtrl = document.getElementById('minute-control');
-            const checkBtn = document.getElementById('check-btn');
-            const nextBtn = document.getElementById('next-stage-btn');
-            const taskText = document.getElementById('task-text');
-            const pokedex = document.getElementById('pokedex-section');
+            const elements = {
+                hHand: document.getElementById('hour-hand'),
+                mHand: document.getElementById('minute-hand'),
+                hCtrl: document.getElementById('hour-control'),
+                mCtrl: document.getElementById('minute-control'),
+                checkBtn: document.getElementById('check-btn'),
+                nextBtn: document.getElementById('next-stage-btn'),
+                taskText: document.getElementById('task-text'),
+                pokeball: document.getElementById('pokeball-icon')
+            };
             const minIndicators = document.querySelectorAll('.min-indicator');
 
-            hHand.classList.add('hidden'); mHand.classList.add('hidden');
-            hCtrl.classList.add('hidden'); mCtrl.classList.add('hidden');
-            checkBtn.classList.add('hidden'); taskText.classList.add('hidden');
-            pokedex.classList.add('hidden'); nextBtn.classList.add('hidden');
+            // איפוס תצוגה
+            Object.values(elements).forEach(el => el.classList.add('hidden'));
             minIndicators.forEach(el => el.classList.add('hidden'));
 
             if (stage === 1) {
                 title.innerText = '״שלב 1: מחוג השעות״';
-                desc.innerText = '״הזז את מחוג השעות (האדום) ושים לב כיצד הוא נע בין המספרים.״';
-                hHand.classList.remove('hidden'); hCtrl.classList.remove('hidden');
-                nextBtn.classList.remove('hidden');
+                desc.innerText = '״הזז את המחוג האדום.״';
+                elements.hHand.classList.remove('hidden');
+                elements.hCtrl.classList.remove('hidden');
+                elements.nextBtn.classList.remove('hidden');
             } else if (stage === 2) {
                 title.innerText = '״שלב 2: מחוג הדקות״';
-                desc.innerText = '״הזז את מחוג הדקות (הכחול). כל קפיצה שווה 5 דקות.״';
-                mHand.classList.remove('hidden'); mCtrl.classList.remove('hidden');
-                nextBtn.classList.remove('hidden');
+                desc.innerText = '״כל קפיצה של המחוג הכחול שווה 5 דקות.״';
+                elements.mHand.classList.remove('hidden');
+                elements.mCtrl.classList.remove('hidden');
+                elements.nextBtn.classList.remove('hidden');
                 minIndicators.forEach(el => el.classList.remove('hidden'));
             } else if (stage === 3) {
                 title.innerText = '״שלב 3: שני המחוגים״';
-                desc.innerText = '״נסה להזיז את שני המחוגים יחד ולראות כיצד הם עובדים כצוות.״';
-                hHand.classList.remove('hidden'); mHand.classList.remove('hidden');
-                hCtrl.classList.remove('hidden'); mCtrl.classList.remove('hidden');
-                nextBtn.classList.remove('hidden');
+                desc.innerText = '״הזז אותם יחד.״';
+                elements.hHand.classList.remove('hidden'); elements.mHand.classList.remove('hidden');
+                elements.hCtrl.classList.remove('hidden'); elements.mCtrl.classList.remove('hidden');
+                elements.nextBtn.classList.remove('hidden');
                 minIndicators.forEach(el => el.classList.remove('hidden'));
             } else if (stage === 4) {
                 title.innerText = '״שלב 4: אתגר הפוקימונים!״';
-                desc.innerText = '״כוון את השעון לשעה המבוקשת כדי לתפוס פוקימונים.״';
-                hHand.classList.remove('hidden'); mHand.classList.remove('hidden');
-                hCtrl.classList.remove('hidden'); mCtrl.classList.remove('hidden');
-                checkBtn.classList.remove('hidden'); taskText.classList.remove('hidden');
-                pokedex.classList.remove('hidden');
+                desc.innerText = '״כוון נכון ותפוס!״';
+                elements.hHand.classList.remove('hidden'); elements.mHand.classList.remove('hidden');
+                elements.hCtrl.classList.remove('hidden'); elements.mCtrl.classList.remove('hidden');
+                elements.checkBtn.classList.remove('hidden'); elements.taskText.classList.remove('hidden');
+                elements.pokeball.classList.remove('hidden');
                 generateNewTask();
             }
         }
@@ -262,7 +267,6 @@
             currentTargetHour = Math.floor(Math.random() * 12) + 1;
             const minutesOpts = [0, 15, 30, 45];
             currentTargetMinute = minutesOpts[Math.floor(Math.random() * minutesOpts.length)];
-            
             const minStr = currentTargetMinute === 0 ? '00' : currentTargetMinute;
             document.getElementById('target-time').innerText = `${currentTargetHour}:${minStr}`;
             resetCurrentStage();
@@ -278,26 +282,55 @@
             const m = parseInt(document.getElementById('minute-slider').value);
             
             if (h === currentTargetHour && m === currentTargetMinute) {
-                alert('״כל הכבוד עומר! תפסת פוקימון חדש!״');
                 const newPoke = getRandomPokemonUrl();
                 collectedPokemon.push(newPoke);
                 localStorage.setItem('omerPokedex', JSON.stringify(collectedPokemon));
-                renderPokedex();
-                generateNewTask();
+                
+                // הצגת מסך הניצחון
+                document.getElementById('victory-pokemon').src = newPoke;
+                document.getElementById('victory-modal').classList.remove('hidden');
+                
             } else {
-                alert('״לא נורא, נסה שוב! זכור להסתכל על שני המחוגים.״');
+                // ניתן לשפר עם מסך טעות עדין, בינתיים הושאר להנחיה ויזואלית קצרה
+                const btn = document.getElementById('check-btn');
+                btn.innerText = 'נסה שוב!';
+                btn.style.backgroundColor = '#e74c3c';
+                setTimeout(() => {
+                    btn.innerText = 'בדוק תשובה';
+                    btn.style.backgroundColor = '#4caf50';
+                }, 1500);
             }
         }
 
-        function renderPokedex() {
+        function closeVictory() {
+            document.getElementById('victory-modal').classList.add('hidden');
+            generateNewTask();
+        }
+
+        function openPokedex() {
             const grid = document.getElementById('pokedex-grid');
             grid.innerHTML = '';
             collectedPokemon.forEach(src => {
                 const img = document.createElement('img');
                 img.src = src;
                 img.className = 'pokedex-item';
+                img.onclick = () => openEnlarge(src);
                 grid.appendChild(img);
             });
+            document.getElementById('pokedex-modal').classList.remove('hidden');
+        }
+
+        function closePokedex() {
+            document.getElementById('pokedex-modal').classList.add('hidden');
+        }
+
+        function openEnlarge(src) {
+            document.getElementById('enlarge-pokemon').src = src;
+            document.getElementById('enlarge-modal').classList.remove('hidden');
+        }
+
+        function closeEnlarge() {
+            document.getElementById('enlarge-modal').classList.add('hidden');
         }
     </script>
 </body>
