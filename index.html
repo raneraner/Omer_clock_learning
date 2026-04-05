@@ -7,7 +7,7 @@
     <style>
         body {
             font-family: system-ui, sans-serif;
-            background-color: #e0f7fa; /* צבע רקע תכלת חי */
+            background-color: #e0f7fa;
             margin: 0;
             padding: 20px;
             display: flex;
@@ -23,7 +23,6 @@
             max-width: 500px;
             width: 100%;
         }
-        #app-screen { display: none; }
         h1 { color: #2a75bb; font-size: 2.2rem; margin-bottom: 10px; text-shadow: 1px 1px #ffcb05; }
         .stage-instructions { font-size: 1.2rem; color: #444; margin-bottom: 20px; font-weight: bold; }
         .pokemon-img { width: 220px; height: 220px; }
@@ -58,7 +57,7 @@
         .number-label { position: absolute; font-weight: bold; font-size: 1.4rem; color: #333; }
         .minute-label { position: absolute; font-weight: bold; font-size: 1rem; color: #e74c3c; background: #ffeaa7; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; }
         
-        /* סליידרים מוגדלים */
+        /* סליידרים */
         .controls { display: flex; flex-direction: column; align-items: center; gap: 25px; margin-top: 30px; }
         .control-group { background: #f1f8e9; padding: 15px; border-radius: 12px; width: 90%; }
         .control-group label { font-size: 1.2rem; font-weight: bold; color: #2c3e50; }
@@ -72,7 +71,7 @@
         .pokedex-grid { display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; padding: 0 15px; }
         .pokedex-item { width: 75px; height: 75px; background: white; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
         
-        /* כפתורי ניווט צדדיים */
+        /* כפתורי ניווט */
         .nav-buttons { position: fixed; bottom: 20px; right: 20px; display: flex; gap: 15px; flex-direction: row-reverse; z-index: 100; }
         .nav-btn { width: 55px; height: 55px; border-radius: 50%; font-size: 1.5rem; padding: 0; display: flex; align-items: center; justify-content: center; margin-top: 0; }
         
@@ -88,7 +87,7 @@
         <button class="btn-green" onclick="startApp()">בוא נתחיל לשחק!</button>
     </div>
 
-    <div id="app-screen">
+    <div id="app-screen" class="hidden">
         <h1 id="stage-title">שלב 1</h1>
         <p id="stage-desc" class="stage-instructions"></p>
         
@@ -161,7 +160,6 @@
         function drawClockNumbers() {
             const clock = document.getElementById('clock');
             
-            // מספרי שעות
             for (let i = 1; i <= 12; i++) {
                 const angle = (i * 30) * (Math.PI / 180);
                 const radius = 105;
@@ -176,7 +174,6 @@
                 clock.appendChild(num);
             }
 
-            // מספרי דקות (מבחוץ)
             for (let i = 0; i < 60; i += 5) {
                 const angle = (i * 6) * (Math.PI / 180);
                 const radius = 135; 
@@ -226,7 +223,6 @@
             const pokedex = document.getElementById('pokedex-section');
             const minIndicators = document.querySelectorAll('.min-indicator');
 
-            // הסתרה של הכל כברירת מחדל
             hHand.classList.add('hidden'); mHand.classList.add('hidden');
             hCtrl.classList.add('hidden'); mCtrl.classList.add('hidden');
             checkBtn.classList.add('hidden'); taskText.classList.add('hidden');
