@@ -7,61 +7,92 @@
     <style>
         body {
             font-family: system-ui, sans-serif;
-            background-color: #f0f8ff;
+            background-color: #e0f7fa; /* צבע רקע תכלת חי */
             margin: 0;
             padding: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
-        #app-screen {
+        #splash-screen, #app-screen {
             text-align: center;
-            background: white;
+            background: #ffffff;
             padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-radius: 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
             max-width: 500px;
             width: 100%;
         }
-        h1 { color: #2a75bb; font-size: 1.8rem; margin-bottom: 5px; }
-        .stage-instructions { font-size: 1.1rem; color: #555; margin-bottom: 20px; }
+        #app-screen { display: none; }
+        h1 { color: #2a75bb; font-size: 2.2rem; margin-bottom: 10px; text-shadow: 1px 1px #ffcb05; }
+        .stage-instructions { font-size: 1.2rem; color: #444; margin-bottom: 20px; font-weight: bold; }
+        .pokemon-img { width: 220px; height: 220px; }
         button {
-            background-color: #2a75bb; color: white; border: none;
-            padding: 10px 20px; font-size: 1rem; border-radius: 8px;
-            cursor: pointer; margin-top: 15px;
+            background-color: #ff5252; color: white; border: none;
+            padding: 15px 30px; font-size: 1.2rem; border-radius: 12px;
+            cursor: pointer; margin-top: 25px; font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.1s;
         }
+        button:active { transform: scale(0.95); }
+        .btn-blue { background-color: #2a75bb; }
+        .btn-green { background-color: #4caf50; }
+        
+        /* שעון */
         .clock-container {
-            position: relative; width: 250px; height: 250px;
-            border: 10px solid #333; border-radius: 50%;
-            margin: 20px auto; background: white;
+            position: relative; width: 300px; height: 300px;
+            border: 12px solid #333; border-radius: 50%;
+            margin: 30px auto; background: #fdfbfb;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.1);
         }
         .hand {
             position: absolute; bottom: 50%; left: 50%;
-            transform-origin: bottom; background: #333;
-            border-radius: 5px; transition: transform 0.2s;
+            transform-origin: bottom; border-radius: 8px; transition: transform 0.1s;
         }
-        .hour-hand { width: 6px; height: 60px; margin-left: -3px; background: #e74c3c; }
-        .minute-hand { width: 4px; height: 90px; margin-left: -2px; background: #3498db; }
+        .hour-hand { width: 8px; height: 75px; margin-left: -4px; background: #e74c3c; z-index: 2; }
+        .minute-hand { width: 6px; height: 110px; margin-left: -3px; background: #3498db; z-index: 1; }
         .center-dot {
             position: absolute; top: 50%; left: 50%;
-            width: 16px; height: 16px; background: #333;
-            border-radius: 50%; transform: translate(-50%, -50%);
+            width: 20px; height: 20px; background: #f1c40f; border: 4px solid #333;
+            border-radius: 50%; transform: translate(-50%, -50%); z-index: 3;
         }
-        .controls { display: flex; justify-content: center; gap: 20px; margin-top: 20px; }
-        .pokedex { margin-top: 30px; border-top: 2px solid #eee; padding-top: 20px; }
-        .pokedex-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
-        .pokedex-item { width: 60px; height: 60px; background: #eee; border-radius: 50%; }
-        .number-label { position: absolute; font-weight: bold; font-size: 1.2rem; }
+        .number-label { position: absolute; font-weight: bold; font-size: 1.4rem; color: #333; }
+        .minute-label { position: absolute; font-weight: bold; font-size: 1rem; color: #e74c3c; background: #ffeaa7; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; }
+        
+        /* סליידרים מוגדלים */
+        .controls { display: flex; flex-direction: column; align-items: center; gap: 25px; margin-top: 30px; }
+        .control-group { background: #f1f8e9; padding: 15px; border-radius: 12px; width: 90%; }
+        .control-group label { font-size: 1.2rem; font-weight: bold; color: #2c3e50; }
+        input[type="range"] { 
+            width: 100%; height: 25px; margin-top: 10px; cursor: pointer;
+            accent-color: #2a75bb; 
+        }
+        
+        .pokedex { margin-top: 40px; border-top: 4px dashed #bdc3c7; padding-top: 20px; background: #fff9c4; border-radius: 15px; padding-bottom: 20px; }
+        .pokedex h3 { color: #d35400; }
+        .pokedex-grid { display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; padding: 0 15px; }
+        .pokedex-item { width: 75px; height: 75px; background: white; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        
+        /* כפתורי ניווט צדדיים */
+        .nav-buttons { position: fixed; bottom: 20px; right: 20px; display: flex; gap: 15px; flex-direction: row-reverse; z-index: 100; }
+        .nav-btn { width: 55px; height: 55px; border-radius: 50%; font-size: 1.5rem; padding: 0; display: flex; align-items: center; justify-content: center; margin-top: 0; }
+        
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
+    <div id="splash-screen">
+        <h1>עומר לומד לקרוא שעון</h1>
+        <img id="splash-pokemon" class="pokemon-img" src="" alt="פוקימון">
+        <br>
+        <button class="btn-green" onclick="startApp()">בוא נתחיל לשחק!</button>
+    </div>
+
     <div id="app-screen">
-        <h1 id="stage-title">שלב 1: מחוג השעות</h1>
-        <p id="stage-desc" class="stage-instructions">גרור את הסליידר כדי לראות איך המחוג הקצר זז בין המספרים.</p>
+        <h1 id="stage-title">שלב 1</h1>
+        <p id="stage-desc" class="stage-instructions"></p>
         
-        <h2 id="task-text" class="hidden">כוון את השעון לשעה: <span id="target-time"></span></h2>
+        <h2 id="task-text" class="hidden" style="color: #e67e22;">כוון את השעון לשעה:<br><span id="target-time" style="font-size: 2.5rem;"></span></h2>
         
         <div class="clock-container" id="clock">
             <div class="hand hour-hand" id="hour-hand" style="transform: rotate(0deg)"></div>
@@ -70,23 +101,29 @@
         </div>
 
         <div class="controls">
-            <div id="hour-control">
+            <div id="hour-control" class="control-group hidden">
                 <label>שעות:</label><br>
                 <input type="range" id="hour-slider" min="1" max="12" value="12" oninput="updateClock()">
             </div>
-            <div id="minute-control" class="hidden">
+            <div id="minute-control" class="control-group hidden">
                 <label>דקות:</label><br>
                 <input type="range" id="minute-slider" min="0" max="55" step="5" value="0" oninput="updateClock()">
             </div>
         </div>
 
-        <button id="check-btn" class="hidden" onclick="checkAnswer()">בדוק תשובה</button>
-        <button id="next-stage-btn" onclick="nextStage()">הבנתי, עבור לשלב הבא</button>
+        <button id="check-btn" class="hidden btn-green" onclick="checkAnswer()">בדוק תשובה</button>
+        <br>
+        <button id="next-stage-btn" class="hidden btn-blue" onclick="nextStage()">הבנתי, עבור לשלב הבא</button>
 
         <div class="pokedex hidden" id="pokedex-section">
             <h3>הפוקידע שלי</h3>
             <div id="pokedex-grid" class="pokedex-grid"></div>
         </div>
+    </div>
+
+    <div id="nav-area" class="nav-buttons hidden">
+        <button class="nav-btn btn-blue" onclick="resetToHome()" title="חזור להתחלה">🏠</button>
+        <button class="nav-btn" onclick="resetCurrentStage()" title="אתחל שלב נוכחי">↺</button>
     </div>
 
     <script>
@@ -96,18 +133,40 @@
         let collectedPokemon = JSON.parse(localStorage.getItem('omerPokedex')) || [];
 
         window.onload = () => {
+            document.getElementById('splash-pokemon').src = getRandomPokemonUrl();
             drawClockNumbers();
-            setStage(1);
             renderPokedex();
         };
 
+        function startApp() {
+            document.getElementById('splash-screen').classList.add('hidden');
+            document.getElementById('app-screen').classList.remove('hidden');
+            document.getElementById('nav-area').classList.remove('hidden');
+            setStage(1);
+        }
+
+        function resetToHome() {
+            document.getElementById('app-screen').classList.add('hidden');
+            document.getElementById('nav-area').classList.add('hidden');
+            document.getElementById('splash-screen').classList.remove('hidden');
+            document.getElementById('splash-pokemon').src = getRandomPokemonUrl();
+        }
+
+        function resetCurrentStage() {
+            document.getElementById('hour-slider').value = 12;
+            document.getElementById('minute-slider').value = 0;
+            updateClock();
+        }
+
         function drawClockNumbers() {
             const clock = document.getElementById('clock');
+            
+            // מספרי שעות
             for (let i = 1; i <= 12; i++) {
                 const angle = (i * 30) * (Math.PI / 180);
-                const radius = 100;
-                const x = 125 + radius * Math.sin(angle) - 6; 
-                const y = 125 - radius * Math.cos(angle) - 12;
+                const radius = 105;
+                const x = 150 + radius * Math.sin(angle) - 8; 
+                const y = 150 - radius * Math.cos(angle) - 15;
                 
                 const num = document.createElement('div');
                 num.className = 'number-label';
@@ -115,6 +174,21 @@
                 num.style.top = y + 'px';
                 num.innerText = i;
                 clock.appendChild(num);
+            }
+
+            // מספרי דקות (מבחוץ)
+            for (let i = 0; i < 60; i += 5) {
+                const angle = (i * 6) * (Math.PI / 180);
+                const radius = 135; 
+                const x = 150 + radius * Math.sin(angle) - 12; 
+                const y = 150 - radius * Math.cos(angle) - 12;
+                
+                const minLbl = document.createElement('div');
+                minLbl.className = 'minute-label min-indicator hidden';
+                minLbl.style.left = x + 'px';
+                minLbl.style.top = y + 'px';
+                minLbl.innerText = i;
+                clock.appendChild(minLbl);
             }
         }
 
@@ -137,6 +211,9 @@
         }
 
         function setStage(stage) {
+            currentStage = stage;
+            resetCurrentStage();
+
             const title = document.getElementById('stage-title');
             const desc = document.getElementById('stage-desc');
             const hHand = document.getElementById('hour-hand');
@@ -147,32 +224,40 @@
             const nextBtn = document.getElementById('next-stage-btn');
             const taskText = document.getElementById('task-text');
             const pokedex = document.getElementById('pokedex-section');
+            const minIndicators = document.querySelectorAll('.min-indicator');
 
-            hHand.style.display = 'none'; mHand.style.display = 'none';
-            hCtrl.style.display = 'none'; mCtrl.style.display = 'none';
-            checkBtn.style.display = 'none'; taskText.style.display = 'none';
-            pokedex.style.display = 'none';
+            // הסתרה של הכל כברירת מחדל
+            hHand.classList.add('hidden'); mHand.classList.add('hidden');
+            hCtrl.classList.add('hidden'); mCtrl.classList.add('hidden');
+            checkBtn.classList.add('hidden'); taskText.classList.add('hidden');
+            pokedex.classList.add('hidden'); nextBtn.classList.add('hidden');
+            minIndicators.forEach(el => el.classList.add('hidden'));
 
             if (stage === 1) {
                 title.innerText = '״שלב 1: מחוג השעות״';
-                desc.innerText = '״הזז את מחוג השעות ושים לב כיצד הוא נע בין המספרים.״';
-                hHand.style.display = 'block'; hCtrl.style.display = 'block';
+                desc.innerText = '״הזז את מחוג השעות (האדום) ושים לב כיצד הוא נע בין המספרים.״';
+                hHand.classList.remove('hidden'); hCtrl.classList.remove('hidden');
+                nextBtn.classList.remove('hidden');
             } else if (stage === 2) {
                 title.innerText = '״שלב 2: מחוג הדקות״';
-                desc.innerText = '״כל קפיצה של המחוג הארוך שווה 5 דקות.״';
-                mHand.style.display = 'block'; mCtrl.style.display = 'block';
+                desc.innerText = '״הזז את מחוג הדקות (הכחול). כל קפיצה שווה 5 דקות.״';
+                mHand.classList.remove('hidden'); mCtrl.classList.remove('hidden');
+                nextBtn.classList.remove('hidden');
+                minIndicators.forEach(el => el.classList.remove('hidden'));
             } else if (stage === 3) {
                 title.innerText = '״שלב 3: שני המחוגים״';
-                desc.innerText = '״נסה להזיז את שני המחוגים יחד ולראות כיצד הם עובדים יחד.״';
-                hHand.style.display = 'block'; mHand.style.display = 'block';
-                hCtrl.style.display = 'block'; mCtrl.style.display = 'block';
+                desc.innerText = '״נסה להזיז את שני המחוגים יחד ולראות כיצד הם עובדים כצוות.״';
+                hHand.classList.remove('hidden'); mHand.classList.remove('hidden');
+                hCtrl.classList.remove('hidden'); mCtrl.classList.remove('hidden');
+                nextBtn.classList.remove('hidden');
+                minIndicators.forEach(el => el.classList.remove('hidden'));
             } else if (stage === 4) {
                 title.innerText = '״שלב 4: אתגר הפוקימונים!״';
                 desc.innerText = '״כוון את השעון לשעה המבוקשת כדי לתפוס פוקימונים.״';
-                hHand.style.display = 'block'; mHand.style.display = 'block';
-                hCtrl.style.display = 'block'; mCtrl.style.display = 'block';
-                checkBtn.style.display = 'inline-block'; taskText.style.display = 'block';
-                pokedex.style.display = 'block'; nextBtn.style.display = 'none';
+                hHand.classList.remove('hidden'); mHand.classList.remove('hidden');
+                hCtrl.classList.remove('hidden'); mCtrl.classList.remove('hidden');
+                checkBtn.classList.remove('hidden'); taskText.classList.remove('hidden');
+                pokedex.classList.remove('hidden');
                 generateNewTask();
             }
         }
@@ -184,10 +269,7 @@
             
             const minStr = currentTargetMinute === 0 ? '00' : currentTargetMinute;
             document.getElementById('target-time').innerText = `${currentTargetHour}:${minStr}`;
-            
-            document.getElementById('hour-slider').value = 12;
-            document.getElementById('minute-slider').value = 0;
-            updateClock();
+            resetCurrentStage();
         }
 
         function getRandomPokemonUrl() {
@@ -200,7 +282,7 @@
             const m = parseInt(document.getElementById('minute-slider').value);
             
             if (h === currentTargetHour && m === currentTargetMinute) {
-                alert('״כל הכבוד! תפסת פוקימון חדש!״');
+                alert('״כל הכבוד עומר! תפסת פוקימון חדש!״');
                 const newPoke = getRandomPokemonUrl();
                 collectedPokemon.push(newPoke);
                 localStorage.setItem('omerPokedex', JSON.stringify(collectedPokemon));
