@@ -75,16 +75,16 @@
 <body>
 
     <div id="splash-screen">
-        <h1>עומר לומד<br>לקרוא שעון</h1>
+        <h1>״עומר לומד<br>לקרוא שעון״</h1>
         <img id="splash-pokemon" class="pokemon-img" src="" alt="פוקימון">
-        <button class="btn-green" onclick="startApp()">בוא נתחיל לשחק!</button>
+        <button class="btn-green" onclick="startApp()">״בוא נתחיל לשחק!״</button>
     </div>
 
     <div id="app-screen" class="hidden">
-        <h1 id="stage-title">שלב 1</h1>
+        <h1 id="stage-title">״שלב 1״</h1>
         <p id="stage-desc" class="stage-instructions"></p>
         
-        <h2 id="task-text" class="hidden" style="color: #e67e22; margin: 0; font-size: 1.4rem;">כוון לשעה: <span id="target-time" style="font-size: 2rem;"></span></h2>
+        <h2 id="task-text" class="hidden" style="color: #e67e22; margin: 0; font-size: 1.4rem;">״כוון לשעה:״ <span id="target-time" style="font-size: 2rem;"></span></h2>
         
         <div class="clock-container" id="clock">
             <div class="hand hour-hand" id="hour-hand" style="transform: rotate(0deg)"></div>
@@ -94,17 +94,17 @@
 
         <div class="controls">
             <div id="hour-control" class="control-group hidden">
-                <label>שעות:</label>
+                <label>״שעות:״</label>
                 <input type="range" id="hour-slider" min="1" max="12" value="12" oninput="updateClock()">
             </div>
             <div id="minute-control" class="control-group hidden">
-                <label>דקות:</label>
+                <label>״דקות:״</label>
                 <input type="range" id="minute-slider" min="0" max="55" step="5" value="0" oninput="updateClock()">
             </div>
         </div>
 
-        <button id="check-btn" class="hidden btn-green" onclick="checkAnswer()">בדוק תשובה</button>
-        <button id="next-stage-btn" class="hidden btn-blue" onclick="nextStage()">הבנתי, לשלב הבא</button>
+        <button id="check-btn" class="hidden btn-green" onclick="checkAnswer()">״בדוק תשובה״</button>
+        <button id="next-stage-btn" class="hidden btn-blue" onclick="nextStage()">״הבנתי, לשלב הבא״</button>
     </div>
 
     <div id="bottom-bar" class="bottom-bar hidden">
@@ -118,7 +118,8 @@
     <div id="victory-modal" class="modal hidden">
         <div class="modal-content">
             <button class="btn-close" onclick="closeVictory()">X</button>
-            <h2 class="modal-title">יופי! צדקת!</h2>
+            <h2 class="modal-title">״יופי! צדקת!״</h2>
+            <h3 id="victory-time-text" style="color: #2c3e50; margin: 0 0 10px 0; font-size: 1.5rem;" class="hidden"></h3>
             <img id="victory-pokemon" class="huge-pokemon" src="">
         </div>
     </div>
@@ -126,8 +127,9 @@
     <div id="party-modal" class="modal hidden">
         <div class="modal-content" style="background: #e8f8f5; border: 4px solid #f1c40f;">
             <button class="btn-close" onclick="closeParty()">X</button>
-            <h2 class="modal-title" style="color: #c0392b; font-size: 2.2rem; text-shadow: 1px 1px #fff;">מסיבת פוקימונים!</h2>
-            <p style="font-size: 1.3rem; font-weight: bold; margin: 5px 0;">אספת כבר <span id="party-count" style="color: #2980b9; font-size: 1.5rem;"></span> פוקימונים!</p>
+            <h2 class="modal-title" style="color: #c0392b; font-size: 2.2rem; text-shadow: 1px 1px #fff;">״מסיבת פוקימונים!״</h2>
+            <h3 id="party-time-text" style="color: #2c3e50; margin: 0 0 5px 0; font-size: 1.5rem;" class="hidden"></h3>
+            <p style="font-size: 1.3rem; font-weight: bold; margin: 5px 0;">״אספת כבר״ <span id="party-count" style="color: #2980b9; font-size: 1.5rem;"></span> ״פוקימונים!״</p>
             <div id="party-container"></div>
         </div>
     </div>
@@ -135,7 +137,7 @@
     <div id="pokedex-modal" class="modal hidden">
         <div class="modal-content" style="background: #fff9c4;">
             <button class="btn-close" onclick="closePokedex()">X</button>
-            <h2 style="color: #d35400; margin: 0 0 10px 0;">הפוקידע של עומר</h2>
+            <h2 style="color: #d35400; margin: 0 0 10px 0;">״הפוקידע של עומר״</h2>
             <div id="pokedex-grid" class="pokedex-grid"></div>
         </div>
     </div>
@@ -278,11 +280,27 @@
 
         function generateNewTask() {
             currentTargetHour = Math.floor(Math.random() * 12) + 1;
-            const minutesOpts = [0, 15, 30, 45];
+            const minutesOpts = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
             currentTargetMinute = minutesOpts[Math.floor(Math.random() * minutesOpts.length)];
             const minStr = currentTargetMinute === 0 ? '00' : currentTargetMinute;
             document.getElementById('target-time').innerText = `${currentTargetHour}:${minStr}`;
             resetCurrentStage();
+        }
+
+        function getSpecialTimeText(h, m) {
+            const hours = ["", "אחת", "שתיים", "שלוש", "ארבע", "חמש", "שש", "שבע", "שמונה", "תשע", "עשר", "אחת עשרה", "שתים עשרה"];
+            let currHour = hours[h];
+            let nextHour = hours[h === 12 ? 1 : h + 1];
+
+            if (m === 5) return currHour + " וחמישה";
+            if (m === 10) return currHour + " ועשרה";
+            if (m === 15) return currHour + " ורבע";
+            if (m === 20) return currHour + " ועשרים";
+            if (m === 30) return currHour + " וחצי";
+            if (m === 45) return "רבע ל-" + nextHour;
+            if (m === 50) return "עשרה ל-" + nextHour;
+            if (m === 55) return "חמישה ל-" + nextHour;
+            return ""; 
         }
 
         function getUniquePokemonUrl(ignoreCheck = false) {
@@ -299,7 +317,6 @@
                 });
             }
             
-            // איפוס אם כל הפוקימונים נתפסו
             if (availableIds.length === 0) {
                 availableIds = Array.from({length: 151}, (_, i) => i + 1);
             }
@@ -318,10 +335,18 @@
                 collectedPokemon.push(newPoke);
                 localStorage.setItem('omerPokedex', JSON.stringify(collectedPokemon));
                 
-                // בדיקת מסיבה כל 10 פוקימונים
+                const specialText = getSpecialTimeText(currentTargetHour, currentTargetMinute);
+                
                 if (collectedPokemon.length % 10 === 0) {
-                    showParty(newPoke);
+                    showParty(newPoke, specialText);
                 } else {
+                    const timeEl = document.getElementById('victory-time-text');
+                    if (specialText !== "") {
+                        timeEl.innerText = '״' + specialText + '״';
+                        timeEl.classList.remove('hidden');
+                    } else {
+                        timeEl.classList.add('hidden');
+                    }
                     document.getElementById('victory-pokemon').src = newPoke;
                     document.getElementById('victory-modal').classList.remove('hidden');
                 }
@@ -331,7 +356,7 @@
                 btn.innerText = '״נסה שוב!״';
                 btn.style.backgroundColor = '#e74c3c';
                 setTimeout(() => {
-                    btn.innerText = 'בדוק תשובה';
+                    btn.innerText = '״בדוק תשובה״';
                     btn.style.backgroundColor = '#4caf50';
                 }, 1500);
             }
@@ -342,8 +367,17 @@
             generateNewTask();
         }
 
-        function showParty(newPokeSrc) {
+        function showParty(newPokeSrc, specialText) {
             document.getElementById('party-count').innerText = collectedPokemon.length;
+            
+            const timeEl = document.getElementById('party-time-text');
+            if (specialText !== "") {
+                timeEl.innerText = '״' + specialText + '״';
+                timeEl.classList.remove('hidden');
+            } else {
+                timeEl.classList.add('hidden');
+            }
+            
             const partyContainer = document.getElementById('party-container');
             partyContainer.innerHTML = '';
             
