@@ -32,22 +32,24 @@
         
         /* שעון */
         .clock-container {
-            position: relative; width: 220px; height: 220px; border: 10px solid #333;
+            position: relative; width: 200px; height: 200px; border: 10px solid #333;
             border-radius: 50%; background: #fdfbfb; box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
             flex-shrink: 0;
         }
         .hand { position: absolute; bottom: 50%; left: 50%; transform-origin: bottom; border-radius: 8px; }
-        .hour-hand { width: 6px; height: 55px; margin-left: -3px; background: #e74c3c; z-index: 2; }
-        .minute-hand { width: 4px; height: 85px; margin-left: -2px; background: #3498db; z-index: 1; }
+        .hour-hand { width: 6px; height: 50px; margin-left: -3px; background: #e74c3c; z-index: 2; }
+        .minute-hand { width: 4px; height: 75px; margin-left: -2px; background: #3498db; z-index: 1; }
         .center-dot { position: absolute; top: 50%; left: 50%; width: 16px; height: 16px; background: #f1c40f; border: 3px solid #333; border-radius: 50%; transform: translate(-50%, -50%); z-index: 3; }
-        .number-label { position: absolute; font-weight: bold; font-size: 1.1rem; color: #333; }
-        .minute-label { position: absolute; font-weight: bold; font-size: 0.8rem; color: #e74c3c; background: #ffeaa7; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; }
+        .number-label { position: absolute; font-weight: bold; font-size: 1rem; color: #333; }
+        .minute-label { position: absolute; font-weight: bold; font-size: 0.75rem; color: #e74c3c; background: #ffeaa7; border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; }
         
         /* סליידרים */
-        .controls { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; }
-        .control-group { background: #f1f8e9; padding: 10px; border-radius: 10px; width: 90%; }
-        .control-group label { font-size: 1.1rem; font-weight: bold; color: #2c3e50; }
+        .controls { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%; }
+        .control-group { background: #f1f8e9; padding: 8px; border-radius: 10px; width: 90%; }
+        .control-group label { font-size: 1rem; font-weight: bold; color: #2c3e50; }
         input[type="range"] { width: 100%; height: 25px; cursor: pointer; accent-color: #2a75bb; }
+        
+        .ampm-btn { padding: 8px 12px; font-size: 0.9rem; background-color: #95a5a6; }
         
         /* כפתורי ניווט ואייקון פוקדור */
         .bottom-bar { position: fixed; bottom: 15px; left: 15px; right: 15px; display: flex; justify-content: space-between; align-items: flex-end; z-index: 50; }
@@ -93,6 +95,11 @@
         </div>
 
         <div class="controls">
+            <div id="ampm-selector" class="hidden" style="display: flex; gap: 10px; justify-content: center; width: 100%;">
+                <button id="btn-am" class="btn-blue ampm-btn" onclick="selectAmPm(false)">״בוקר (עד 12)״</button>
+                <button id="btn-pm" class="btn-blue ampm-btn" onclick="selectAmPm(true)">״אחה״צ/ערב (מ-12)״</button>
+            </div>
+            
             <div id="hour-control" class="control-group hidden">
                 <label>״שעות:״</label>
                 <input type="range" id="hour-slider" min="1" max="12" value="12" oninput="updateClock()">
@@ -103,8 +110,8 @@
             </div>
         </div>
 
-        <button id="check-btn" class="hidden btn-green" onclick="checkAnswer()">״בדוק תשובה״</button>
-        <button id="next-stage-btn" class="hidden btn-blue" onclick="nextStage()">״הבנתי, לשלב הבא״</button>
+        <button id="check-btn" class="hidden btn-green" onclick="checkAnswer()" style="margin-top: 10px;">״בדוק תשובה״</button>
+        <button id="next-stage-btn" class="hidden btn-blue" onclick="nextStage()" style="margin-top: 10px;">״הבנתי, לשלב הבא״</button>
     </div>
 
     <div id="bottom-bar" class="bottom-bar hidden">
@@ -153,6 +160,9 @@
         let currentStage = 1;
         let currentTargetHour = 12;
         let currentTargetMinute = 0;
+        let is24HourTask = false;
+        let currentTargetIsPM = false;
+        let userSelectedPM = null;
         let collectedPokemon = JSON.parse(localStorage.getItem('omerPokedex')) || [];
 
         window.onload = () => {
@@ -182,13 +192,13 @@
 
         function drawClockNumbers() {
             const clock = document.getElementById('clock');
-            const radiusHour = 75; 
-            const radiusMin = 100;
+            const radiusHour = 70; 
+            const radiusMin = 90;
             
             for (let i = 1; i <= 12; i++) {
                 const angle = (i * 30) * (Math.PI / 180);
-                const x = 110 + radiusHour * Math.sin(angle) - 8; 
-                const y = 110 - radiusHour * Math.cos(angle) - 12;
+                const x = 100 + radiusHour * Math.sin(angle) - 6; 
+                const y = 100 - radiusHour * Math.cos(angle) - 10;
                 const num = document.createElement('div');
                 num.className = 'number-label';
                 num.style.left = x + 'px';
@@ -199,8 +209,8 @@
 
             for (let i = 0; i < 60; i += 5) {
                 const angle = (i * 6) * (Math.PI / 180);
-                const x = 110 + radiusMin * Math.sin(angle) - 10; 
-                const y = 110 - radiusMin * Math.cos(angle) - 10;
+                const x = 100 + radiusMin * Math.sin(angle) - 9; 
+                const y = 100 - radiusMin * Math.cos(angle) - 9;
                 const minLbl = document.createElement('div');
                 minLbl.className = 'minute-label min-indicator hidden';
                 minLbl.style.left = x + 'px';
@@ -240,7 +250,8 @@
                 checkBtn: document.getElementById('check-btn'),
                 nextBtn: document.getElementById('next-stage-btn'),
                 taskText: document.getElementById('task-text'),
-                pokeball: document.getElementById('pokeball-icon')
+                pokeball: document.getElementById('pokeball-icon'),
+                ampm: document.getElementById('ampm-selector')
             };
             const minIndicators = document.querySelectorAll('.min-indicator');
 
@@ -278,12 +289,43 @@
             }
         }
 
+        function selectAmPm(isPM) {
+            userSelectedPM = isPM;
+            const btnAm = document.getElementById('btn-am');
+            const btnPm = document.getElementById('btn-pm');
+            if (isPM) {
+                btnPm.style.backgroundColor = '#e67e22';
+                btnAm.style.backgroundColor = '#95a5a6';
+            } else {
+                btnAm.style.backgroundColor = '#e67e22';
+                btnPm.style.backgroundColor = '#95a5a6';
+            }
+        }
+
         function generateNewTask() {
-            currentTargetHour = Math.floor(Math.random() * 12) + 1;
             const minutesOpts = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
             currentTargetMinute = minutesOpts[Math.floor(Math.random() * minutesOpts.length)];
             const minStr = currentTargetMinute === 0 ? '00' : currentTargetMinute;
-            document.getElementById('target-time').innerText = `${currentTargetHour}:${minStr}`;
+            
+            document.getElementById('ampm-selector').classList.add('hidden');
+            userSelectedPM = null;
+            document.getElementById('btn-am').style.backgroundColor = '#95a5a6';
+            document.getElementById('btn-pm').style.backgroundColor = '#95a5a6';
+
+            if (currentStage === 4 && collectedPokemon.length >= 10 && Math.random() > 0.5) {
+                is24HourTask = true;
+                let rawHour = Math.floor(Math.random() * 24);
+                currentTargetIsPM = rawHour >= 12;
+                currentTargetHour = rawHour % 12;
+                if (currentTargetHour === 0) currentTargetHour = 12;
+                
+                document.getElementById('target-time').innerText = `${rawHour.toString().padStart(2, '0')}:${minStr}`;
+                document.getElementById('ampm-selector').classList.remove('hidden');
+            } else {
+                is24HourTask = false;
+                currentTargetHour = Math.floor(Math.random() * 12) + 1;
+                document.getElementById('target-time').innerText = `${currentTargetHour}:${minStr}`;
+            }
             resetCurrentStage();
         }
 
@@ -330,7 +372,24 @@
             const h = parseInt(document.getElementById('hour-slider').value);
             const m = parseInt(document.getElementById('minute-slider').value);
             
-            if (h === currentTargetHour && m === currentTargetMinute) {
+            let timeCorrect = (h === currentTargetHour && m === currentTargetMinute);
+            let ampmCorrect = true;
+
+            if (is24HourTask) {
+                if (userSelectedPM === null) {
+                    const btn = document.getElementById('check-btn');
+                    btn.innerText = '״בחר בוקר או ערב!״';
+                    btn.style.backgroundColor = '#e74c3c';
+                    setTimeout(() => {
+                        btn.innerText = '״בדוק תשובה״';
+                        btn.style.backgroundColor = '#4caf50';
+                    }, 1500);
+                    return;
+                }
+                ampmCorrect = (userSelectedPM === currentTargetIsPM);
+            }
+            
+            if (timeCorrect && ampmCorrect) {
                 const newPoke = getUniquePokemonUrl();
                 collectedPokemon.push(newPoke);
                 localStorage.setItem('omerPokedex', JSON.stringify(collectedPokemon));
@@ -353,7 +412,12 @@
                 
             } else {
                 const btn = document.getElementById('check-btn');
-                btn.innerText = '״נסה שוב!״';
+                if (timeCorrect && !ampmCorrect) {
+                    btn.innerText = '״השעה נכונה, אבל החלק ביום שגוי!״';
+                } else {
+                    btn.innerText = '״נסה שוב!״';
+                }
+                
                 btn.style.backgroundColor = '#e74c3c';
                 setTimeout(() => {
                     btn.innerText = '״בדוק תשובה״';
