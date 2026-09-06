@@ -28,6 +28,7 @@
         button:active { transform: scale(0.95); }
         .btn-blue { background-color: #2a75bb; }
         .btn-green { background-color: #4caf50; }
+        .btn-help { background-color: #f39c12; color: white; border-radius: 50%; width: 40px; height: 40px; font-size: 1.4rem; font-weight: bold; display: flex; justify-content: center; align-items: center; position: absolute; top: 15px; left: 15px; z-index: 10; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
         .btn-close { background-color: #333; position: absolute; top: 15px; right: 15px; border-radius: 50%; width: 40px; height: 40px; font-size: 1.2rem; display: flex; justify-content: center; align-items: center; z-index: 10; color: white; }
         
         /* שעון */
@@ -47,9 +48,11 @@
         .controls { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%; }
         .control-group { background: #f1f8e9; padding: 8px; border-radius: 10px; width: 90%; }
         .control-group label { font-size: 1rem; font-weight: bold; color: #2c3e50; }
-        input[type="range"] { width: 100%; height: 25px; cursor: pointer; accent-color: #2a75bb; }
+        input[type="range"] { width: 100%; height: 25px; cursor: pointer; accent-color: #2a75bb; direction: rtl; }
         
         .ampm-btn { padding: 8px 12px; font-size: 0.9rem; background-color: #95a5a6; flex: 1; }
+        
+        #math-trick-box { background: #fff3e0; border: 2px dashed #e67e22; padding: 10px; border-radius: 10px; margin: 10px 0; font-size: 1.6rem; font-weight: bold; direction: ltr; color: #d35400; }
         
         /* כפתורי ניווט ואייקון פוקדור */
         .bottom-bar { position: fixed; bottom: 15px; left: 15px; right: 15px; display: flex; justify-content: space-between; align-items: flex-end; z-index: 50; }
@@ -64,6 +67,10 @@
         .pokedex-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; overflow-y: auto; max-height: 60vh; padding: 10px 0; width: 100%; }
         .pokedex-item { width: 70px; height: 70px; background: #f0f0f0; border-radius: 50%; border: 2px solid #ccc; cursor: pointer; }
         .huge-pokemon { width: 250px; height: 250px; object-fit: contain; }
+        
+        /* שעון עזרה */
+        .help-clock-container { position: relative; width: 220px; height: 220px; border: 4px solid #3498db; border-radius: 50%; margin: 20px auto; background: #f0f8ff; }
+        .help-clock-container .center-dot { width: 10px; height: 10px; background: #3498db; border: none; }
         
         /* אנימציות מסיבה */
         #party-container { display: flex; justify-content: center; align-items: flex-end; gap: 15px; margin-top: 15px; min-height: 150px; }
@@ -84,10 +91,14 @@
     </div>
 
     <div id="app-screen" class="hidden">
+        <button id="btn-help" class="btn-help hidden" onclick="openHelp()">?</button>
+        
         <h1 id="stage-title">״שלב 1״</h1>
         <p id="stage-desc" class="stage-instructions"></p>
         
-        <h2 id="task-text" class="hidden" style="color: #e67e22; margin: 0; font-size: 1.4rem;">״כוון לשעה:״ <span id="target-time" style="font-size: 2rem; direction: ltr; display: inline-block;"></span></h2>
+        <div id="math-trick-box" class="hidden"></div>
+        
+        <h2 id="task-text" class="hidden" style="color: #e67e22; margin: 0; font-size: 1.4rem;">״כוון לשעה:״ <br><span id="target-time" style="font-size: 2rem; direction: ltr; display: inline-block;"></span></h2>
         
         <div class="clock-container" id="clock">
             <div class="hand hour-hand" id="hour-hand" style="transform: rotate(0deg)"></div>
@@ -103,7 +114,7 @@
             
             <div id="hour-control" class="control-group hidden">
                 <label>״שעות:״</label>
-                <input type="range" id="hour-slider" min="1" max="12" value="12" oninput="updateClock()">
+                <input type="range" id="hour-slider" min="0" max="11" value="0" oninput="updateClock()">
             </div>
             <div id="minute-control" class="control-group hidden">
                 <label>״דקות:״</label>
@@ -157,17 +168,30 @@
         </div>
     </div>
 
+    <div id="help-modal" class="modal hidden">
+        <div class="modal-content">
+            <button class="btn-close" onclick="closeHelp()">X</button>
+            <h2 style="color: #2980b9; margin-bottom: 0;">״גלגל הצלה״</h2>
+            <p style="color: #555; font-weight: bold; font-size: 1rem;">״המעגל החיצוני מראה את שעות אחר הצהריים והערב.״</p>
+            <div class="help-clock-container" id="help-clock-face">
+                <div class="center-dot"></div>
+            </div>
+        </div>
+    </div>
+
     <script>
         let currentStage = 1;
         let currentTargetHour = 12;
         let currentTargetMinute = 0;
         let currentTargetIsPM = false;
         let userSelectedPM = null;
+        let trickTargetHour = 12;
         let collectedPokemon = JSON.parse(localStorage.getItem('omerPokedex')) || [];
 
         window.onload = () => {
             document.getElementById('splash-pokemon').src = getUniquePokemonUrl(true);
             drawClockNumbers();
+            drawHelpClock();
         };
 
         function startApp() {
@@ -181,7 +205,7 @@
             document.getElementById('splash-screen').classList.add('hidden');
             document.getElementById('app-screen').classList.remove('hidden');
             document.getElementById('bottom-bar').classList.remove('hidden');
-            setStage(4);
+            setStage(5);
         }
 
         function resetToHome() {
@@ -192,7 +216,7 @@
         }
 
         function resetCurrentStage() {
-            document.getElementById('hour-slider').value = 12;
+            document.getElementById('hour-slider').value = 0;
             document.getElementById('minute-slider').value = 0;
             updateClock();
         }
@@ -227,9 +251,43 @@
             }
         }
 
+        function drawHelpClock() {
+            const clock = document.getElementById('help-clock-face');
+            for (let i = 1; i <= 12; i++) {
+                const angle = (i * 30) * (Math.PI / 180);
+                
+                let rIn = 60;
+                let xIn = 110 + rIn * Math.sin(angle) - 6;
+                let yIn = 110 - rIn * Math.cos(angle) - 10;
+                let numIn = document.createElement('div');
+                numIn.style.position = 'absolute';
+                numIn.style.left = xIn + 'px';
+                numIn.style.top = yIn + 'px';
+                numIn.style.color = '#e74c3c';
+                numIn.style.fontWeight = 'bold';
+                numIn.innerText = i;
+                clock.appendChild(numIn);
+
+                let rOut = 90;
+                let xOut = 110 + rOut * Math.sin(angle) - 10;
+                let yOut = 110 - rOut * Math.cos(angle) - 10;
+                let numOut = document.createElement('div');
+                numOut.style.position = 'absolute';
+                numOut.style.left = xOut + 'px';
+                numOut.style.top = yOut + 'px';
+                numOut.style.color = '#2980b9';
+                numOut.style.fontWeight = 'bold';
+                numOut.innerText = (i === 12) ? '00/24' : i + 12;
+                clock.appendChild(numOut);
+            }
+        }
+
         function updateClock() {
-            const hour = parseInt(document.getElementById('hour-slider').value);
+            let hour = parseInt(document.getElementById('hour-slider').value);
             const minute = parseInt(document.getElementById('minute-slider').value);
+            
+            if (hour === 0) hour = 12;
+            
             const minuteAngle = minute * 6;
             const hourAngle = (hour % 12) * 30 + (minute * 0.5);
             
@@ -238,7 +296,7 @@
         }
 
         function nextStage() {
-            if (currentStage < 4) {
+            if (currentStage < 5) {
                 setStage(currentStage + 1);
             }
         }
@@ -258,7 +316,9 @@
                 nextBtn: document.getElementById('next-stage-btn'),
                 taskText: document.getElementById('task-text'),
                 pokeball: document.getElementById('pokeball-icon'),
-                ampm: document.getElementById('ampm-selector')
+                ampm: document.getElementById('ampm-selector'),
+                trickBox: document.getElementById('math-trick-box'),
+                helpBtn: document.getElementById('btn-help')
             };
             const minIndicators = document.querySelectorAll('.min-indicator');
 
@@ -286,13 +346,22 @@
                 elements.nextBtn.classList.remove('hidden');
                 minIndicators.forEach(el => el.classList.remove('hidden'));
             } else if (stage === 4) {
-                title.innerText = '״שלב 4: אתגר הפוקימונים!״';
-                desc.innerText = '״כוון נכון ותפוס!״';
+                title.innerText = '״שלב 4: שיטת הדיגיטלי״';
+                desc.innerText = '״כדי להבין שעות כמו 15:00, פשוט נחסר 12. כוון את התוצאה:״';
+                elements.hHand.classList.remove('hidden'); elements.mHand.classList.remove('hidden');
+                elements.hCtrl.classList.remove('hidden'); elements.mCtrl.classList.remove('hidden');
+                elements.checkBtn.classList.remove('hidden');
+                elements.trickBox.classList.remove('hidden');
+                generateTrickTask();
+            } else if (stage === 5) {
+                title.innerText = '״שלב 5: אתגר הפוקימונים!״';
+                desc.innerText = '״כוון נכון ותפוס! (היעזר בלחצן ׳?׳ למעלה)״';
                 elements.hHand.classList.remove('hidden'); elements.mHand.classList.remove('hidden');
                 elements.hCtrl.classList.remove('hidden'); elements.mCtrl.classList.remove('hidden');
                 elements.checkBtn.classList.remove('hidden'); elements.taskText.classList.remove('hidden');
                 elements.pokeball.classList.remove('hidden');
                 elements.ampm.classList.remove('hidden');
+                elements.helpBtn.classList.remove('hidden');
                 generateNewTask();
             }
         }
@@ -310,6 +379,15 @@
             }
         }
 
+        function generateTrickTask() {
+            let hour24 = Math.floor(Math.random() * 11) + 13; 
+            trickTargetHour = hour24 - 12;
+            document.getElementById('math-trick-box').innerText = `${hour24} - 12 = ${trickTargetHour}`;
+            currentTargetHour = trickTargetHour;
+            currentTargetMinute = 0;
+            resetCurrentStage();
+        }
+
         function generateNewTask() {
             const minutesOpts = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
             currentTargetMinute = minutesOpts[Math.floor(Math.random() * minutesOpts.length)];
@@ -319,17 +397,12 @@
             document.getElementById('btn-am').style.backgroundColor = '#95a5a6';
             document.getElementById('btn-pm').style.backgroundColor = '#95a5a6';
 
-            if (currentStage === 4) {
-                let rawHour = Math.floor(Math.random() * 24);
-                currentTargetIsPM = rawHour >= 12;
-                currentTargetHour = rawHour % 12;
-                if (currentTargetHour === 0) currentTargetHour = 12;
-                
-                document.getElementById('target-time').innerText = `${rawHour.toString().padStart(2, '0')}:${minStr}`;
-            } else {
-                currentTargetHour = Math.floor(Math.random() * 12) + 1;
-                document.getElementById('target-time').innerText = `${currentTargetHour}:${minStr}`;
-            }
+            let rawHour = Math.floor(Math.random() * 24);
+            currentTargetIsPM = rawHour >= 12;
+            currentTargetHour = rawHour % 12;
+            if (currentTargetHour === 0) currentTargetHour = 12;
+            
+            document.getElementById('target-time').innerText = `${rawHour.toString().padStart(2, '0')}:${minStr}`;
             resetCurrentStage();
         }
 
@@ -373,13 +446,14 @@
         }
 
         function checkAnswer() {
-            const h = parseInt(document.getElementById('hour-slider').value);
+            let h = parseInt(document.getElementById('hour-slider').value);
+            if (h === 0) h = 12;
             const m = parseInt(document.getElementById('minute-slider').value);
             
             let timeCorrect = (h === currentTargetHour && m === currentTargetMinute);
             let ampmCorrect = true;
 
-            if (currentStage === 4) {
+            if (currentStage === 5) {
                 if (userSelectedPM === null) {
                     const btn = document.getElementById('check-btn');
                     btn.innerText = '״בחר בוקר או אחה״צ!״';
@@ -394,6 +468,12 @@
             }
             
             if (timeCorrect && ampmCorrect) {
+                if (currentStage === 4) {
+                    alert('״אלופה! הבנת את הטריק. בוא נעבור למשחק האמיתי!״');
+                    nextStage();
+                    return;
+                }
+
                 const newPoke = getUniquePokemonUrl();
                 collectedPokemon.push(newPoke);
                 localStorage.setItem('omerPokedex', JSON.stringify(collectedPokemon));
@@ -416,7 +496,7 @@
                 
             } else {
                 const btn = document.getElementById('check-btn');
-                if (timeCorrect && !ampmCorrect) {
+                if (timeCorrect && !ampmCorrect && currentStage === 5) {
                     btn.innerText = '״השעה נכונה, אך היממה שגויה!״';
                 } else {
                     btn.innerText = '״נסה שוב!״';
@@ -500,6 +580,14 @@
 
         function closeEnlarge() {
             document.getElementById('enlarge-modal').classList.add('hidden');
+        }
+
+        function openHelp() {
+            document.getElementById('help-modal').classList.remove('hidden');
+        }
+
+        function closeHelp() {
+            document.getElementById('help-modal').classList.add('hidden');
         }
     </script>
 </body>
